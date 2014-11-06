@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: ${SERVICE:=dropbox}
+: ${SERVICE:=" "}  #modify
 : ${CPU:=100}
 : ${MEMORY:=100M}
 : ${DISK:=5G}
@@ -11,7 +11,7 @@ if ! test "$(whoami)" = 'root'; then
   echo 'this script must run as root.' >&2
   exit 1
 fi
-
+read -p "put your folder name..." SERVICE  #modify
 DockerRun() {
   DOCKER_FLAGS+=(
       --volume="/storage/${SERVICE}:/home/cloud-admin"
@@ -20,7 +20,7 @@ DockerRun() {
   docker run "${DOCKER_FLAGS[@]}" "${SERVICE}" "$@"
 }
 
-Mount() {
+Mount() {  
   if ! mountpoint -q "/storage/${SERVICE}"; then
     if [ ! -f "/storage/${SERVICE}/image.dmg" ]; then
       echo "install docker-dropbox: './service.sh install'" >&2
@@ -30,7 +30,7 @@ Mount() {
     resize2fs "/storage/${SERVICE}/image.dmg" "${DISK}"
     mount -t auto -o loop "/storage/${SERVICE}/image.dmg" "/storage/${SERVICE}"
   fi
-  chown 20601:20601 "/storage/${SERVICE}"
+  chown 700 "/storage/${SERVICE}" #modify
 }
 
 Start() {
@@ -82,7 +82,7 @@ Install() {
 Uninstall() {
   Stop
   while true; do
-    read -p "Do you really want to remove /storage/${SERVICE}? [yes/no] " yn
+    read -p "Do you really want to remove /storage/${SERVICE}? [yes/no] " 
     if [ "${yn}" == 'yes' ]; then break; fi
     case "${yn}" in
       [Nn]*) exit;;
