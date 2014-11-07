@@ -56,12 +56,6 @@ Stop() {
 }
 
 Install() {
-  if ! which docker; then
-    if ! which docker.io; then
-      apt-get update && apt-get install -y docker.io
-    fi
-    ln -s "$(which docker.io)" /usr/local/bin/docker
-  fi
   if mountpoint -q "/storage/${SERVICE}"; then
     echo "/storage/${SERVICE} is already mounted." >&2
   else
