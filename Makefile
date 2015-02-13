@@ -7,6 +7,7 @@ stop:
 .PHONY: stop
 
 install:
+	echo "original uid:gid = $ORGUID:$ORGGID"
 	bash service.sh install
 .PHONY: install
 

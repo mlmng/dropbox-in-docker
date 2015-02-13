@@ -12,6 +12,7 @@ if ! test "$(whoami)" = 'root'; then
   exit 1
 fi
 read -p "put your folder name..." SERVICE  #modify
+
 DockerRun() {
   DOCKER_FLAGS+=(
       --volume="/storage/${SERVICE}:/home/cloud-admin"
@@ -30,7 +31,6 @@ Mount() {
     resize2fs "/storage/${SERVICE}/image.dmg" "${DISK}"
     mount -t auto -o loop "/storage/${SERVICE}/image.dmg" "/storage/${SERVICE}"
   fi
-  chown 700 "/storage/${SERVICE}" #modify
 }
 
 Start() {
@@ -68,6 +68,7 @@ Install() {
     fi
     Mount
   fi
+  sed -i.org -e "s/--uid=20601/--uid=$ORGUID/" Dockerfile
   docker build --tag="${SERVICE}" .
   DOCKER_FLAGS=(--tty --interactive --rm)
   DockerRun /bin/bash /config/setup.sh
@@ -76,7 +77,7 @@ Install() {
 Uninstall() {
   Stop
   while true; do
-    read -p "Do you really want to remove /storage/${SERVICE}? [yes/no] " 
+    read -p "Do you really want to remove /storage/${SERVICE}? [yes/no] " yn
     if [ "${yn}" == 'yes' ]; then break; fi
     case "${yn}" in
       [Nn]*) exit;;
