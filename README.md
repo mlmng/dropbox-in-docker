@@ -19,5 +19,5 @@ How to Use dropbox-in-docker
 Run the following command:
 
 ```sh
-make install
+sudo run
 ```
