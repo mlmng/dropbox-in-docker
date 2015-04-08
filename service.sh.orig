@@ -4,7 +4,6 @@
 : ${CPU:=100}
 : ${MEMORY:=100M}
 : ${DISK:=5G}
-: ${file:="/storage/"}
 
 set -e -u
 
@@ -12,7 +11,7 @@ if ! test "$(whoami)" = 'root'; then
   echo 'this script must run as root.' >&2
   exit 1
 fi
-#read -p "put your folder name..." SERVICE  #modify
+read -p "put your folder name..." SERVICE  #modify
 
 DockerRun() {
   DOCKER_FLAGS+=(
@@ -57,26 +56,22 @@ Stop() {
 }
 
 Install() {
-  ls $file > /tmp/text.txt
-  while read SERVICE 
-  do
-    if mountpoint -q "/storage/${SERVICE}"; then
-      echo "/storage/${SERVICE} is already mounted." >&2
+  if mountpoint -q "/storage/${SERVICE}"; then
+    echo "/storage/${SERVICE} is already mounted." >&2
+  else
+    if [ -f "/storage/${SERVICE}/image.dmg" ]; then
+      echo "/storage/${SERVICE}/image.dmg already exists." >&2
     else
-      if [ -f "/storage/${SERVICE}/image.dmg" ]; then
-        echo "/storage/${SERVICE}/image.dmg already exists." >&2
-      else
-        mkdir -p "/storage/${SERVICE}"
-        truncate --size="${DISK}" "/storage/${SERVICE}/image.dmg"
-        yes | mkfs -t ext4 "/storage/${SERVICE}/image.dmg"
-      fi
-      Mount
+      mkdir -p "/storage/${SERVICE}"
+      truncate --size="${DISK}" "/storage/${SERVICE}/image.dmg"
+      yes | mkfs -t ext4 "/storage/${SERVICE}/image.dmg"
     fi
-    sed -i.org -e "s/--uid=20601/--uid=$ORGUID/" Dockerfile
-    docker build --tag="${SERVICE}" .
-    DOCKER_FLAGS=(--tty --interactive --rm)
-    DockerRun /bin/bash /config/setup.sh
-  done < /tmp/text.txt
+    Mount
+  fi
+  sed -i.org -e "s/--uid=20601/--uid=$ORGUID/" Dockerfile
+  docker build --tag="${SERVICE}" .
+  DOCKER_FLAGS=(--tty --interactive --rm)
+  DockerRun /bin/bash /config/setup.sh
 }
 
 Uninstall() {
