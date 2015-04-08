@@ -10,7 +10,7 @@ Run the following command.  This command will show a URL to activate Dropbox.  O
 
 ```sh
 git clone https://github.com/mlmng/dropbox-in-docker dropbox-in-docker
-cd dropbox-in-docker && make install
+cd dropbox-in-docker 
 ```
 
 How to Use dropbox-in-docker
@@ -19,5 +19,5 @@ How to Use dropbox-in-docker
 Run the following command:
 
 ```sh
-make install
+sudo ./run.sh
 ```
